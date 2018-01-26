@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #box{width: 100%;height: 600px;}
+    </style>
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/echarts.min.js"></script>
+</head>
+<body>
+<div id="box"></div>
+<script>
+    $(function (){
+        var arr=[],arr1=[],arr2=[],arr3=[],arr4=[];
+        $.ajax({
+            async:false ,
+            type:"get",
+            url:"json/fgl.json",
+            dataType:"json",
+            success:function (dt){
+                console.log(dt);
+                arr=dt.data;
+            }
+        });
+        $.each(arr,function (index,item){
+            arr1.push(item.cdate.substring(5));
+            arr2.push(item.ReprintCount);
+            arr3.push(item.OriginalCount);
+            arr4.push(item.originalrate.split("%")[0]);
+        });
+        var myChart = echarts.init(document.getElementById('box'));
+        var option = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    crossStyle: {
+                        color: '#999'
+                    }
+                }
+            },
+            legend: {
+                data:['转载量','原创量','原创率']
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    data:arr1,
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    name: '水量',
+                    max: 25000,
+                    min: 0,
+                    boundaryGap: [0.2, 0.2]
+                },
+                {
+                    type:"value",
+                    scale: true,
+                    max: 30,
+                    min: 0,
+                    boundaryGap: [0.2, 0.2]
+                }
+            ],
+            series: [
+                {
+                    name:'转载量',
+                    type:'bar',
+                    stack:"a",
+                    data:arr2,
+                    itemStyle:{          // 改变柱形的角
+                        barBorderRadius:30
+                    },
+                },
+                {
+                    name:'原创量',
+                    type:'bar',
+                    stack:"a",
+                    barWidth:15,
+                    data:arr3,
+                    itemStyle:{          // 改变柱形的角
+                        barBorderRadius:30
+                    },
+                },
+                {
+                    name:'原创率',
+                    type:'line',
+                    yAxisIndex: 1,
+                    data:arr4
+                }
+            ]
+        };
+        myChart.setOption(option);
+    });
+</script>
+</body>
+</html>

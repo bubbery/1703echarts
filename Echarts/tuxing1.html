@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<script src="js/echarts.min.js"></script>
+<script src="js/jquery-3.2.1.min.js"></script>
+<body>
+<!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+<div id="main" style="width: 100%;height:600px;"></div>
+</body>
+<script>
+    $(function() {
+        $.getJSON("json/origin.json", function (data) {
+            // 基于准备好的dom，初始化echarts实例
+            var myChart = echarts.init(document.getElementById('main'));
+            var gy='';
+            var fgy='';
+            $.each(data.data,function (index,value) {
+               fgy=value.unsource;
+                gy=value.source;
+            });
+            // 指定图表的配置项和数据
+            option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: "{a} <br/>{b}: {c} ({d}%)"
+                },
+                backgroundColor:"#231e18",
+                legend: {
+                    x: 'center',//图例显示在中间
+                    orient : 'horizontal',  //布局  纵向布局 图例标记居文字的左边 vertical则反之
+                    width:200,      //图行例组件的宽度,默认自适应
+                    itemWidth:15,  //图例标记的图形宽度
+                    itemHeight:15, //图例标记的图形高度
+                    data: ['稿源单位', '非稿源单位'],
+                    textStyle:{    //图例文字的样式
+                        color:'white',  //文字颜色
+                        fontSize:12    //文字大小
+                    }
+                },
+                label:{
+                     show:"true",
+                },
+                color:['#609bc5','#ae8fb4'],  //手动设置每个图例的颜色
+                series: [
+                    {
+                        name: '',  //系列名称
+                        type: 'pie', //类型 pie表示饼图
+                        radius: ['40%', '50%'],
+                        avoidLabelOverlap: false,
+                        label: {
+                            normal: {
+                                show: false,
+                                position: 'center'
+                            }
+                        },
+                        labelLine: {
+                            normal: { show: false }
+                            },
+                        data: [
+                            {value: gy, name: '稿源单位'},
+                            {value: fgy, name: '非稿源单位'}
+                        ]
+                    }
+                ]
+            };
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+        })
+    })
+</script>
+</html>

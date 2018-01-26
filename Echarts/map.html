@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/echarts.min.js"></script>
+    <script src="js/china.js"></script>
+    <style>
+        *{margin: 0;padding: 0;}
+        body{background: #0f0f0f;}
+        #tab{width: 100px;height: 30px;margin: 20px 0 0 20px;background: red;border: 1px solid sandybrown}
+        button{width: 50px;height: 30px;border: none;background: #0f0f0f;color: #fff;float: left;}
+        #sf{width: 50px;background: red;color: #fff;float: left;}
+        #main{width: 100%;height: 500px;}
+        #main1{width: 100%;height: 500px;display: none;}
+    </style>
+</head>
+<body>
+<div id="tab">
+    <button id="sf">省份</button>
+    <button id="city">城市</button>
+</div>
+<div id="main"></div>
+<div id="main1"></div>
+<script>
+    $.getJSON("json/provence.json",function (data) {
+        var myChart = echarts.init(document.getElementById('main'));
+
+        var names=[];
+        var city={name:"",value:""}
+        $.each(data.data,function (index,value) {
+           city={name:value.name, value:value.count}
+           names.push(city);
+        })
+        option = {
+            tooltip: {
+                trigger: 'item'
+            },
+            visualMap: {
+                min: 0,
+                max: 1000,
+                left: 250,
+                top: 'bottom',
+                text: ['高','低'],
+                calculable: true,
+                textStyle:{
+                    color:"#fff"
+                },
+                inRange:{
+                    color:["sandybrown","rgba(210,140,80,0.3)"]
+                }
+            },
+            series:[ {
+                name: '',
+                type: 'map',
+                mapType: 'china',
+                roam: true,
+                data: names,
+                geoIndex:0
+            }
+            ]
+        };
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    })
+
+    $.getJSON("json/citys.json",function (data) {
+        var myChart = echarts.init(document.getElementById('main1'));
+
+        var names=[];
+        var city={name:"",value:""}
+        $.each(data.data,function (index,value) {
+            city={name:value.name, value:[value.longitude,value.latitude]}
+            names.push(city);
+        })
+        option = {
+            tooltip : {
+                trigger: 'item'
+            },
+            legend: {
+                orient: 'vertical',
+                y: 'bottom',
+                x:'right',
+                data:['pm2.5'],
+                textStyle: {
+                    color: '#fff'
+                }
+            },
+            geo: {
+                map: 'china',
+                label: {
+                    emphasis: {
+                        show: false
+                    }
+                },
+                roam: true,
+                itemStyle: {
+                    normal: {
+                        areaColor: '#323c48',
+                        borderColor: '#111'
+                    },
+                    emphasis: {
+                        areaColor: '#2a333d'
+                    }
+                }
+            },
+            series : [
+                {
+                    name: 'pm2.5',
+                    type: 'scatter',
+                    coordinateSystem: 'geo',
+                    data: names,
+                    symbolSize: function (val) {
+                        return val[2] / 15;
+                    },
+                    label: {
+                        normal: {
+                            formatter: '{b}',
+                            position: 'right',
+                            show: false
+                        },
+                        emphasis: {
+                            show: true
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: '#ddb926'
+                        }
+                    }
+                },
+                {
+                    name: 'Top 5',
+                    type: 'effectScatter',
+                    coordinateSystem: 'geo',
+                    data: names,
+                    showEffectOn: 'render',
+                    rippleEffect: {
+                        brushType: 'stroke'
+                    },
+                    hoverAnimation: true,
+                    label: {
+                        normal: {
+                            formatter: '{b}',
+                            position: 'right',
+                            show: false
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: '#f4e925',
+                            shadowBlur: 10,
+                            shadowColor: '#333'
+                        }
+                    },
+                    zlevel: 1
+                }
+            ]
+        };
+        myChart.setOption(option);
+    })
+    $("#sf").on("click",function () {
+        $("#main1").css("display","none");
+        $("#main").css("display","block");
+        $("#sf").css("background","red");
+        $("#city").css("background","#0f0f0f");
+    })
+    $("#city").on("click",function () {
+        $("#main").css("display","none");
+        $("#main1").css("display","block");
+        $("#city").css("background","red");
+        $("#sf").css("background","#0f0f0f");
+    })
+
+
+</script>
+</body>
+</html>

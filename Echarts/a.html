@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/echarts.min.js"></script>
+</head>
+<body>
+<div id="main" style="width: 800px;height: 600px;"></div>
+<script>
+    $(function () {
+        var myChart = echarts.init(document.getElementById('main'));
+        // 显示标题，图例和空的坐标轴
+        myChart.setOption({
+            title: {
+                text: '异步数据加载示例'
+            },
+            tooltip: {},
+            legend: {
+                data: ['转载量','原创量','原创率(%)']
+            },
+            xAxis: {
+                data: []
+            },
+            yAxis: [  {
+                type: 'value',
+                min: 0,
+                max: 25000
+            },
+                {
+                    type: 'value',
+                    min: 0,
+                    max: 30
+                }
+            ],
+            series: [{
+                barWidth: "10px",
+                name: '转载量',
+                type: 'bar',
+                stack: "aa",
+                data: []
+            },
+                {
+                barWidth: "10px",
+                name: '原创量',
+                type: 'bar',
+                stack:"aa",
+                data: []
+            },
+                {
+                    name: '原创率',
+                    type: 'line',
+                    data: []
+                }
+            ]
+        });
+
+
+
+
+
+        var names = [];    //类别数组（实际用来盛放X轴坐标值）
+        var nums = [];    //销量数组（实际用来盛放Y坐标值）
+
+
+        $.ajax({
+            type: 'get',
+            url: 'json/fgl.json',//请求数据的地址
+            dataType: "json",        //返回数据形式为json
+            success: function (result) {
+                //请求成功时执行该函数内容，result即为服务器返回的json对象
+                $.each(result.data, function (index, item) {
+                    names.push(item.cdate);    //挨个取出类别并填入类别数组
+                    nums.push(item.ReprintCount,item.OriginalCount,item.originalrate);    //挨个取出销量并填入销量数组
+                });
+
+
+                myChart.hideLoading();    //隐藏加载动画
+                myChart.setOption({        //加载数据图表
+                    xAxis: {
+                        data: names
+                    },
+                    series: [{
+                        // 根据名字对应到相应的系列
+                        name: '转载量',  //显示在上部的标题
+                        data: nums
+                    },
+                        {
+                        // 根据名字对应到相应的系列
+                        name: '原创量',  //显示在上部的标题
+                        data: nums
+                    },
+                        {
+                            name:'原创率',
+                            data:nums
+                        }
+                    ]
+                });
+            },
+            error: function (errorMsg) {
+                //请求失败时执行该函数
+                alert("图表请求数据失败!");
+                myChart.hideLoading();
+            }
+        });
+    })
+
+</script>
+</body>
+</html>
